@@ -19,7 +19,6 @@ typedef struct opcode {
 typedef struct node {
 	int symbol;
 	int freq;
-	char opcode[200];
 	struct node* left;
 	struct node* right;
 } node;
@@ -52,10 +51,11 @@ void printPreorder(struct node* node, char* buffer) {
 		
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
+		 /* first print data of node */
+    	printf("%d -> (%s) ", node->symbol, buffer);
 	}
  
-    /* first print data of node */
-    printf("%d %s", node->symbol, node->opcode);
+   
 
     /* then recur on left sutree */
 	char buff2[200];
@@ -74,6 +74,7 @@ void printLevelOrder(struct node* root)
     int i;
     for (i=1; i<=h; i++)
         printCurrentLevel(root, i);
+	printf("\n");
 }
  
 /* Print nodes at a current level */
@@ -180,7 +181,8 @@ int main(void)
 	// pre order traversel and store results into array
 
 	// TO DO:
-	// encode huffman tree and opcodes into file
+	// Interate through input file char by char and replace with lookup value
+	// Write tree and encoded values to output file
 	// decoder
 	// run this on ARM machine to ensure it works
 	// optimize
