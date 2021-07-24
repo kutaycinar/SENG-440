@@ -2,16 +2,24 @@
 #include <stdlib.h>
 #include <wchar.h>
 #include <locale.h>
+#include <string.h>
 
-#define MAX_INT 	2147483647
+#define MAX_INT 		2147483647
 #define ALPHABET_SIZE	5
 #define ALPHABET_OFFSET 931
 
-typedef struct node
-{
+// TODO: Remove this!!!!!!!!!
+char lookupTable[200][200];
+
+typedef struct opcode {
+	char bit;
+	struct opcode *next;
+} opcode;
+
+typedef struct node {
 	int symbol;
 	int freq;
-	char* opcode;
+	char opcode[200];
 	struct node* left;
 	struct node* right;
 } node;
@@ -32,32 +40,32 @@ struct node* newNode(int symbol, int freq)
 	return node;
 }
 
-void pa_int(int *array, int length)
-{
-	for (int i = 0; i < length; i++)
-	{ 
-		printf("%d -> %d\n",i, array[i]);
-	}
-}
 
-void printPreorder(struct node* node)
-{
-    if (node == NULL)
-        return;
- 
-    /* first print data of node */
-    printf("%d ", node->symbol);
- 
-    /* then recur on left sutree */
-    printPreorder(node->left);
- 
-    /* now recur on right subtree */
-    printPreorder(node->right);
-}
 
 /* Function protoypes */
 void printCurrentLevel(struct node* root, int level);
 int height(struct node* node);
+
+void printPreorder(struct node* node, char* buffer) {
+    if (node == NULL)
+        return;
+		
+	if (node->symbol != -1) {
+		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
+	}
+ 
+    /* first print data of node */
+    printf("%d %s", node->symbol, node->opcode);
+
+    /* then recur on left sutree */
+	char buff2[200];
+	strcpy(buff2, buffer);
+    printPreorder(node->left, strcat(buff2, "0"));
+    /* now recur on right subtree */
+	char buff3[200];
+	strcpy(buff3, buffer);
+    printPreorder(node->right, strcat(buff3, "1"));
+}
  
 /* Function to print level order traversal a tree*/
 void printLevelOrder(struct node* root)
@@ -73,8 +81,9 @@ void printCurrentLevel(struct node* root, int level)
 {
     if (root == NULL)
         return;
-    if (level == 1)
+    if (level == 1) {
         printf("%d ", root->symbol);
+	}
     else if (level > 1)
     {
         printCurrentLevel(root->left, level-1);
@@ -152,14 +161,29 @@ int main(void)
 		}
 		// printf("\nsmallest: %d. Second smallest: %d\n", firstIndex, secondIndex);
 		node* nodeParent = newNode(-1, smallest + secondSmallest);
+
 		nodeParent->right = treeNodes[firstIndex];
 		nodeParent->left = treeNodes[secondIndex];
+
 		treeNodes[firstIndex] = nodeParent;
 		treeNodes[secondIndex]->freq = -1;
 		nodesLeft--;
 	}
 
+
 	printLevelOrder(treeNodes[0]);
+	char buffer[200];
+	printPreorder(treeNodes[0], buffer);
+
+	// printf("")
+
+	// pre order traversel and store results into array
+
+	// TO DO:
+	// encode huffman tree and opcodes into file
+	// decoder
+	// run this on ARM machine to ensure it works
+	// optimize
 
 
 	fclose(file);
