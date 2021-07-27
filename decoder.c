@@ -5,16 +5,22 @@
 #include <string.h>
 #include "huffman.h"
 
-struct node buildTree(int* asciiCodes[], struct node* node, int size, int currIndex) {
+void buildTree(int asciiCodes[], struct node* node, int size, int currIndex) {
 
 	// Condition for a leaf node
-	if(currIndex * 2 + 2 >= size) {
+	if(currIndex * 2 + 2 >= size || asciiCodes[currIndex * 2 + 2] == 0) {
+		if(asciiCodes[currIndex] != 0) {
+			printf("We are here %d\n", currIndex);
+		}
 		node->symbol = asciiCodes[currIndex];
+		printf("Returning Node: %d\n", node->symbol);
 		return;
 	}
 	
-	node->left = buildTree(&asciiasciiCodes, newNode(-1, 0), size, currIndex * 2 + 1)
-	node->right = buildTree(&asciiasciiCodes, newNode(-1, 0), size, currIndex * 2 + 2)
+	node->left = newNode(-1, 0);
+	buildTree(asciiCodes, node->left, size, currIndex * 2 + 1);
+	node->right = newNode(-1, 0);
+	buildTree(asciiCodes, node->right, size, currIndex * 2 + 2);
 
 
 }
@@ -39,8 +45,12 @@ int main(void) {
 		tokenized = strtok(NULL, " ");
 		size++;
 	}
+	for(int i = 0; i < size; i++){
+		printf("%d ", treeAsciiCodes[i]);
+	}
 	struct node* huffmanTree = newNode(-1, 0);
-	buildTree(huffmanTree, &treeAsciiCodes, size, 0);
+	buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
+	printHuffmanTree(huffmanTree);
 	// Build Huffman tree
 	// Use array indexes to find children
 	// Probably should be recursive

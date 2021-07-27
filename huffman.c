@@ -47,16 +47,23 @@ void printHuffmanTree(struct node* root)
 /* Print nodes at a current level */
 void writeCurrentLevel(struct node* root, int level, FILE** outputFile)
 {
-    if (root == NULL)
+    if (level == 0) {
         return;
+    }
 
-    if (level == 1)
-        fprintf(*outputFile, "%d ", root->symbol);
+    if (level == 1) {
+        if(root == NULL) {
+            fprintf(*outputFile, "%d ", 0);
+        } else {
+            fprintf(*outputFile, "%d ", root->symbol);
+        }  
+    }
 
-    else if (level > 1)
-    {
-        writeCurrentLevel(root->left, level-1, outputFile);
-        writeCurrentLevel(root->right, level-1, outputFile);
+    else if (level > 1) {
+        node* nextLeft = (root == NULL) ? root : root->left;
+        writeCurrentLevel(nextLeft, level-1, outputFile);
+        node* nextRight = (root == NULL) ? root : root->right;
+        writeCurrentLevel(nextRight, level-1, outputFile);
     }
 }
 
@@ -64,8 +71,7 @@ void writeCurrentLevel(struct node* root, int level, FILE** outputFile)
 void writeHuffmanTree(struct node* root, FILE** outputFile)
 {
     int h = height(root);
-    int i;
-    for (i=1; i<=h; i++)
+    for (int i=1; i<=h; i++)
         writeCurrentLevel(root, i, outputFile);
 } 
  
