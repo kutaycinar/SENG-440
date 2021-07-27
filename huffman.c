@@ -42,17 +42,17 @@ struct node* newNode(int symbol, int freq)
 
 
 /* Function protoypes */
-void printCurrentLevel(struct node* root, int level);
+void printCurrentLevel(struct node* root, int level, FILE** outputFile);
 int height(struct node* node);
 
-void printPreorder(struct node* node, char* buffer) {
+void buildLookupTable(struct node* node, char* buffer) {
     if (node == NULL)
         return;
 		
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
 		 /* first print data of node */
-    	printf("%d -> (%s) ", node->symbol, buffer);
+    	wprintf(L"%d -> (%s) ", node->symbol, buffer);
 	}
  
    
@@ -60,35 +60,35 @@ void printPreorder(struct node* node, char* buffer) {
     /* then recur on left sutree */
 	char buff2[200];
 	strcpy(buff2, buffer);
-    printPreorder(node->left, strcat(buff2, "0"));
+    buildLookupTable(node->left, strcat(buff2, "0"));
     /* now recur on right subtree */
 	char buff3[200];
 	strcpy(buff3, buffer);
-    printPreorder(node->right, strcat(buff3, "1"));
+    buildLookupTable(node->right, strcat(buff3, "1"));
 }
  
 /* Function to print level order traversal a tree*/
-void printLevelOrder(struct node* root)
+void printHuffmanTree(struct node* root, FILE** outputFile)
 {
     int h = height(root);
     int i;
     for (i=1; i<=h; i++)
-        printCurrentLevel(root, i);
-	printf("\n");
+        printCurrentLevel(root, i, outputFile);
+	fprintf(*outputFile, "\n");
 }
  
 /* Print nodes at a current level */
-void printCurrentLevel(struct node* root, int level)
+void printCurrentLevel(struct node* root, int level, FILE** outputFile)
 {
     if (root == NULL)
         return;
     if (level == 1) {
-        printf("%d ", root->symbol);
+        fprintf(*outputFile, "%d ", root->symbol);
 	}
     else if (level > 1)
     {
-        printCurrentLevel(root->left, level-1);
-        printCurrentLevel(root->right, level-1);
+        printCurrentLevel(root->left, level-1, outputFile);
+        printCurrentLevel(root->right, level-1, outputFile);
     }
 }
  
@@ -129,9 +129,6 @@ int main(void)
 		frequencies[(int)c - ALPHABET_OFFSET] += 1;
 	}
 
-	// frequencies[200] = {0};
-	// frequencies = {8, 3, 3, 3, 3};
-
 	// Create an array that holds the leaf nodes
 	node* treeNodes[ALPHABET_SIZE] = {};
 	for(int i = 0; i < ALPHABET_SIZE; i++) {
@@ -171,18 +168,28 @@ int main(void)
 		nodesLeft--;
 	}
 
-
-	printLevelOrder(treeNodes[0]);
+	FILE* outputFile = fopen("encoded.txt", "w");
+	printHuffmanTree(treeNodes[0], &outputFile);
 	char buffer[200];
-	printPreorder(treeNodes[0], buffer);
+	buildLookupTable(treeNodes[0], buffer);
+
+	fseek(file, 0, SEEK_SET);
+
+
+	// Increment symbol frequencies
+	while ((c = fgetwc(file)) != WEOF)
+	{
+		fprintf(outputFile, "%s", lookupTable[(int)c - ALPHABET_OFFSET]);
+	}
+
+	fclose(outputFile);
+
 
 	// printf("")
 
 	// pre order traversel and store results into array
 
 	// TO DO:
-	// Interate through input file char by char and replace with lookup value
-	// Write tree and encoded values to output file
 	// decoder
 	// run this on ARM machine to ensure it works
 	// optimize
