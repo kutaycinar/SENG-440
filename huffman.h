@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #ifndef __HUFFMAN__H
 #define __HUFFMAN__H
 
@@ -13,5 +16,13 @@ typedef struct node {
 } node;
 
 struct node* newNode(int symbol, int freq);
+
+void printCurrentLevel(struct node* root, int level);
+void writeCurrentLevel(struct node* root, int level, FILE** outputFile);
+
+int height(struct node* node);
+
+void printHuffmanTree(struct node* root);
+void writeHuffmanTree(struct node* root, FILE** outputFile);
 
 #endif
