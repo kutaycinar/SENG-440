@@ -3,10 +3,8 @@
 #include <wchar.h>
 #include <locale.h>
 #include <string.h>
+#include "huffman.h"
 
-#define MAX_INT 		2147483647
-#define ALPHABET_SIZE	5
-#define ALPHABET_OFFSET 931
 
 // TODO: Remove this!!!!!!!!!
 char lookupTable[200][200];
@@ -16,33 +14,10 @@ typedef struct opcode {
 	struct opcode *next;
 } opcode;
 
-typedef struct node {
-	int symbol;
-	int freq;
-	struct node* left;
-	struct node* right;
-} node;
-
-struct node* newNode(int symbol, int freq)
-{
-	// Allocate memory for new node
-	node* node = (struct node*)malloc(sizeof(struct node));
-
-	// Assign symbol to this node
-	node->symbol = symbol;
-	node->freq = freq;
-
-	// Initialize left and right children as NULL
-	node->left = NULL;
-	node->right = NULL;
-
-	return node;
-}
-
-
-
 /* Function protoypes */
+
 void printCurrentLevel(struct node* root, int level, FILE** outputFile);
+
 int height(struct node* node);
 
 void buildLookupTable(struct node* node, char* buffer) {

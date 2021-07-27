@@ -53,3 +53,4 @@ dkms.conf
 
 # VS Project Files
 launch.json
+.vscode
