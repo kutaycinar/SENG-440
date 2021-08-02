@@ -1,19 +1,25 @@
-OBJS	= decoder encoder
+OBJS	= decoder.o encoder.o huffman.o
 HEADER	= huffman.h
-OUT	= a.out
+OUT	= encoder decoder
 CC	 = gcc
-FLAGS	 = -Wall
+FLAGS	 = -Wall -c
 
-all: decoder.o encoder.o
+all: decoder encoder
 
-decoder.o: decoder.c $(HEADER) huffman.c
-	$(CC) $(FLAGS) -o $@ decoder.c huffman.c
+decoder.o: decoder.c $(HEADER)
+	$(CC) $(FLAGS) -o $@ decoder.c
 
-encoder.o: encoder.c $(HEADER) huffman.c
-	$(CC) $(FLAGS) -o $@ encoder.c huffman.c
+huffman.o: huffman.c $(HEADER)
+	$(CC) $(FLAGS) -o $@ huffman.c
+
+encoder.o: encoder.c $(HEADER)
+	$(CC) $(FLAGS) -o $@ encoder.c
+
+decoder: decoder.o huffman.o
+	$(CC) -o $@ decoder.o huffman.o
+
+encoder: encoder.o huffman.o
+	$(CC) -o $@ encoder.o huffman.o
 
 clean:
-	rm -f $(OBJS) $(OUT)
-
-run: $(OUT)
-	./$(OUT)
+	rm -f $(OBJS) $(OUT) encoded.txt
