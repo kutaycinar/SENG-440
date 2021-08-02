@@ -37,7 +37,7 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
 
 int main(void)
 {
-	// char *locale = setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "");
 
 	// Open input file
 	FILE *file = fopen("output20.txt", "r");

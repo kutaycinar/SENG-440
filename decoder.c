@@ -9,11 +9,7 @@ void buildTree(int asciiCodes[], struct node* node, int size, int currIndex) {
 
 	// Condition for a leaf node
 	if(currIndex * 2 + 2 >= size || asciiCodes[currIndex * 2 + 2] == 0) {
-		if(asciiCodes[currIndex] != 0) {
-			printf("We are here %d\n", currIndex);
-		}
 		node->symbol = asciiCodes[currIndex];
-		printf("Returning Node: %d\n", node->symbol);
 		return;
 	}
 	
@@ -27,16 +23,16 @@ void buildTree(int asciiCodes[], struct node* node, int size, int currIndex) {
 
 int main(void) {
 	
-	char *locale = setlocale(LC_ALL, "");
+	setlocale(LC_ALL, "");
 
 	FILE* file = fopen("encoded.txt", "r");
     
 	// Read first line
 	// Build huffman tree
     char huffmanInfo[5000];
-    char opcodes[5000];
 	int treeAsciiCodes[512] = {};
 
+	// TODO add tree size to file
 	fgets (huffmanInfo, 100, file);
     char* tokenized = strtok(huffmanInfo, " ");
 	int size = 0;
@@ -50,22 +46,18 @@ int main(void) {
 	}
 	struct node* huffmanTree = newNode(-1, 0);
 	buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
-	printHuffmanTree(huffmanTree);
-	// Build Huffman tree
-	// Use array indexes to find children
-	// Probably should be recursive
+	// printHuffmanTree(huffmanTree);
+
+// 	// Read second line
+// 	// Traverse huffman tree until leaf node is found
+	char nextBit;
+	printf("wtf\n");
+	do {
+		nextBit = fgetc(file);
+		printf("%c", nextBit);
+	} while(nextBit != EOF);
 	
 	
-
-
-
-
-	// Read second line
-	// Traverse huffman tree until leaf node is found
-
-
- 	fclose(file);
-
-
+	fclose(file);
 	 
 }
