@@ -6,9 +6,6 @@
 #include "huffman.h"
 
 
-// TODO: Remove this!!!!!!!!!
-char lookupTable[200][200];
-
 typedef struct opcode {
 	char bit;
 	struct opcode *next;
@@ -16,9 +13,10 @@ typedef struct opcode {
 
 /* Function protoypes */
 
-void buildLookupTable(struct node* node, char* buffer) {
-    if (node == NULL)
-        return;
+void buildLookupTable(struct node* node, char* buffer, char** lookupTable) {
+	if (node == NULL) {
+		return;
+	}
 		
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
@@ -29,16 +27,16 @@ void buildLookupTable(struct node* node, char* buffer) {
     /* then recur on left sutree */
 	char buff2[200];
 	strcpy(buff2, buffer);
-    buildLookupTable(node->left, strcat(buff2, "0"));
+    buildLookupTable(node->left, strcat(buff2, "0"), lookupTable);
     /* now recur on right subtree */
 	char buff3[200];
 	strcpy(buff3, buffer);
-    buildLookupTable(node->right, strcat(buff3, "1"));
+    buildLookupTable(node->right, strcat(buff3, "1"), lookupTable);
 }
 
 int main(void)
 {
-	char *locale = setlocale(LC_ALL, "");
+	// char *locale = setlocale(LC_ALL, "");
 
 	// Open input file
 	FILE *file = fopen("output20.txt", "r");
@@ -96,7 +94,8 @@ int main(void)
 	writeHuffmanTree(treeNodes[0], &outputFile);
 	fprintf(outputFile, "\n");
 	char buffer[200];
-	buildLookupTable(treeNodes[0], buffer);
+	char lookupTable[200][200];
+	buildLookupTable(treeNodes[0], buffer, (char**)lookupTable);
 
 	fseek(file, 0, SEEK_SET);
 
