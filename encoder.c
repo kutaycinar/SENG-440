@@ -22,7 +22,7 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
 		 /* first print data of node */
-    	wprintf(L"%d -> (%s) ", node->symbol, buffer);
+    	wprintf(L"%C -> (%s) ", node->symbol, buffer);
 	}
 
     /* then recur on left sutree */

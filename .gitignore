@@ -54,4 +54,7 @@ dkms.conf
 # VS Project Files
 launch.json
 .vscode
+encoder
+decoder
 encoded.txt
+decoded.txt

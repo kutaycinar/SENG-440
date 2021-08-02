@@ -46,18 +46,33 @@ int main(void) {
 	}
 	struct node* huffmanTree = newNode(-1, 0);
 	buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
-	// printHuffmanTree(huffmanTree);
+	printHuffmanTree(huffmanTree);
 
-// 	// Read second line
-// 	// Traverse huffman tree until leaf node is found
-	char nextBit;
-	printf("wtf\n");
+
+	// Read second line
+	// Traverse huffman tree until leaf node is found
+	FILE* outputFile = fopen("decoded.txt", "w");
+	char nextBit = fgetc(file);
+	struct node* adventurer = huffmanTree;
 	do {
-		nextBit = fgetc(file);
 		printf("%c", nextBit);
+		if(nextBit == '0') {
+			adventurer = adventurer->left;
+		}
+		if(nextBit == '1') {
+			adventurer = adventurer->right;
+		}
+		if(adventurer->symbol != -1)
+		{
+			fwprintf(outputFile, L"%C", adventurer->symbol);
+			adventurer = huffmanTree;
+		}
+		nextBit = fgetc(file);
+		
 	} while(nextBit != EOF);
 	
 	
 	fclose(file);
+	fclose(outputFile);
 	 
 }

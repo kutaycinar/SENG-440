@@ -22,4 +22,4 @@ encoder: encoder.o huffman.o
 	$(CC) -o $@ encoder.o huffman.o
 
 clean:
-	rm -f $(OBJS) $(OUT) encoded.txt
+	rm -f $(OBJS) $(OUT) encoded.txt decoded.txt
