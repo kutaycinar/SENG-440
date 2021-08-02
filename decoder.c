@@ -25,15 +25,15 @@ int main(void) {
 	
 	setlocale(LC_ALL, "");
 
-	FILE* file = fopen("encoded.txt", "r");
+	FILE* inputFile = fopen("encoded.txt", "r");
     
 	// Read first line
 	// Build huffman tree
-    char huffmanInfo[5000];
-	int treeAsciiCodes[512] = {};
+    char huffmanInfo[1000];
+	int treeAsciiCodes[500] = {};
 
 	// TODO add tree size to file
-	fgets (huffmanInfo, 100, file);
+	fgets (huffmanInfo, 1000, inputFile);
     char* tokenized = strtok(huffmanInfo, " ");
 	int size = 0;
     while(tokenized != NULL) {
@@ -48,11 +48,10 @@ int main(void) {
 	buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
 	printHuffmanTree(huffmanTree);
 
-
 	// Read second line
 	// Traverse huffman tree until leaf node is found
 	FILE* outputFile = fopen("decoded.txt", "w");
-	char nextBit = fgetc(file);
+	char nextBit = fgetc(inputFile);
 	struct node* adventurer = huffmanTree;
 	do {
 		printf("%c", nextBit);
@@ -67,12 +66,11 @@ int main(void) {
 			fwprintf(outputFile, L"%C", adventurer->symbol);
 			adventurer = huffmanTree;
 		}
-		nextBit = fgetc(file);
+		nextBit = fgetc(inputFile);
 		
 	} while(nextBit != EOF);
 	
-	
-	fclose(file);
+	fclose(inputFile);
 	fclose(outputFile);
 	 
 }
