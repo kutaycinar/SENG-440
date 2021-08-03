@@ -36,7 +36,7 @@ int main(void)
 	setlocale(LC_ALL, "");
 
 	// Open input file
-	FILE *inputFile = fopen("output20.txt", "r");
+	FILE *inputFile = fopen("output10k.txt", "r");
 
 	int frequencies[ALPHABET_SIZE] = {0};
 
@@ -48,52 +48,23 @@ int main(void)
 		frequencies[(int)c - ALPHABET_OFFSET] += 1;
 	}
 
-	// Create an array that holds the leaf nodes
-	node* treeNodes[ALPHABET_SIZE] = {};
-	for(int i = 0; i < ALPHABET_SIZE; i++) {
-		node* nextNode = newNode(i + ALPHABET_OFFSET, frequencies[i]);
-		treeNodes[i] = nextNode;
-	}
-	
-	int nodesLeft = ALPHABET_SIZE;
-	while(nodesLeft > 1) {
-		int firstIndex = 0, secondIndex = 0;
-		int smallest = MAX_INT;
-		int secondSmallest = MAX_INT;
-		for(int i = 0; i < ALPHABET_SIZE; i++) {
-			int nextFreq = treeNodes[i]->freq;
-			if(nextFreq == -1) {continue;}
-			if(nextFreq < smallest) {
-				firstIndex = secondIndex;
-				secondIndex = i;
-				secondSmallest = smallest;
-				smallest = nextFreq;
-			} else if(nextFreq < secondSmallest) {
-				secondSmallest = nextFreq;
-				firstIndex = secondIndex;
-				secondIndex = i;
-			}
-
-		}
-		node* nodeParent = newNode(-1, smallest + secondSmallest);
-
-		nodeParent->right = treeNodes[firstIndex];
-		nodeParent->left = treeNodes[secondIndex];
-
-		treeNodes[firstIndex] = nodeParent;
-		treeNodes[secondIndex]->freq = -1;
-		nodesLeft--;
-	}
+	node* treeNodes = buildHuffmanTree(frequencies);
 
 	FILE* outputFile = fopen("encoded.txt", "w");
 
-	writeHuffmanTree(treeNodes[0], &outputFile);
+	// writeHuffmanTree(treeNodes[0], &outputFile);
+
+	for (int i = 0; i < ALPHABET_SIZE; i++)
+	{
+		fprintf(outputFile, "%d ", frequencies[i]);
+	}
+
 	fprintf(outputFile, "\n");
 
 	char buffer[200] = {0};
 	char lookupTable[200][200];
 
-	buildLookupTable(treeNodes[0], buffer, lookupTable);
+	buildLookupTable(treeNodes, buffer, lookupTable);
 
 	// Reset file pointer
 	fseek(inputFile, 0, SEEK_SET);

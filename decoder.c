@@ -44,8 +44,8 @@ int main(void) {
 	for(int i = 0; i < size; i++){
 		printf("%d ", treeAsciiCodes[i]);
 	}
-	struct node* huffmanTree = newNode(-1, 0);
-	buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
+	// buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
+	node* huffmanTree = buildHuffmanTree(treeAsciiCodes);
 	printHuffmanTree(huffmanTree);
 
 	// Read second line

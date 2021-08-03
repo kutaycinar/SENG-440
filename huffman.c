@@ -43,37 +43,6 @@ void printHuffmanTree(struct node* root)
     for (i=1; i<=h; i++)
         printCurrentLevel(root, i);
 } 
-
-/* Print nodes at a current level */
-void writeCurrentLevel(struct node* root, int level, FILE** outputFile)
-{
-    if (level == 0) {
-        return;
-    }
-
-    if (level == 1) {
-        if(root == NULL) {
-            fprintf(*outputFile, "%d ", 0);
-        } else {
-            fprintf(*outputFile, "%d ", root->symbol);
-        }  
-    }
-
-    else if (level > 1) {
-        node* nextLeft = (root == NULL) ? root : root->left;
-        writeCurrentLevel(nextLeft, level-1, outputFile);
-        node* nextRight = (root == NULL) ? root : root->right;
-        writeCurrentLevel(nextRight, level-1, outputFile);
-    }
-}
-
-/* Function to print level order traversal a tree*/
-void writeHuffmanTree(struct node* root, FILE** outputFile)
-{
-    int h = height(root);
-    for (int i=1; i<=h; i++)
-        writeCurrentLevel(root, i, outputFile);
-} 
  
 /* Compute the "height" of a tree -- the number of
     nodes along the longest path from the root node
@@ -93,4 +62,45 @@ int height(struct node* node)
             return(lheight+1);
         else return(rheight+1);
     }
+}
+
+struct node* buildHuffmanTree(int frequencies[]) {
+    // Create an array that holds the leaf nodes
+	node* treeNodes[ALPHABET_SIZE] = {};
+	for(int i = 0; i < ALPHABET_SIZE; i++) {
+		node* nextNode = newNode(i + ALPHABET_OFFSET, frequencies[i]);
+		treeNodes[i] = nextNode;
+	}
+	
+	int nodesLeft = ALPHABET_SIZE;
+	while(nodesLeft > 1) {
+		int firstIndex = 0, secondIndex = 0;
+		int smallest = MAX_INT;
+		int secondSmallest = MAX_INT;
+		for(int i = 0; i < ALPHABET_SIZE; i++) {
+			int nextFreq = treeNodes[i]->freq;
+			if(nextFreq == -1) {continue;}
+			if(nextFreq < smallest) {
+				firstIndex = secondIndex;
+				secondIndex = i;
+				secondSmallest = smallest;
+				smallest = nextFreq;
+			} else if(nextFreq < secondSmallest) {
+				secondSmallest = nextFreq;
+				firstIndex = secondIndex;
+				secondIndex = i;
+			}
+
+		}
+		node* nodeParent = newNode(-1, smallest + secondSmallest);
+
+		nodeParent->right = treeNodes[firstIndex];
+		nodeParent->left = treeNodes[secondIndex];
+
+		treeNodes[firstIndex] = nodeParent;
+		treeNodes[secondIndex]->freq = -1;
+		nodesLeft--;
+	}
+    // Return the root of the tree
+    return treeNodes[0];
 }
