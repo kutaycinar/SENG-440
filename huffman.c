@@ -64,7 +64,7 @@ int height(struct node* node)
     }
 }
 
-struct node* buildHuffmanTree(int frequencies[]) {
+struct node* buildHuffmanTree(short frequencies[]) {
     // Create an array that holds the leaf nodes
 	node* treeNodes[ALPHABET_SIZE] = {};
 	for(int i = 0; i < ALPHABET_SIZE; i++) {

@@ -56,5 +56,5 @@ launch.json
 .vscode
 encoder
 decoder
-encoded.txt
+encoded.dat
 decoded.txt
