@@ -5,30 +5,26 @@
 #include <string.h>
 #include "huffman.h"
 
-
-// TODO: Remove this!!!!!!!!!
-// char lookupTable[200][200];
-
 typedef struct opcode {
 	char bit;
 	struct opcode *next;
 } opcode;
-
-/* Function protoypes */
 
 void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) {
     if (node == NULL) return;
 		
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
-		 /* first print data of node */
-    	wprintf(L"%C -> (%s) ", node->symbol, buffer);
+		
+		/* first print data of node */
+    	printf("%C -> (%s) ", node->symbol, lookupTable[node->symbol-ALPHABET_OFFSET]);
 	}
 
     /* then recur on left sutree */
 	char buff2[200];
 	strcpy(buff2, buffer);
     buildLookupTable(node->left, strcat(buff2, "0"), lookupTable);
+	
     /* now recur on right subtree */
 	char buff3[200];
 	strcpy(buff3, buffer);
@@ -40,14 +36,14 @@ int main(void)
 	setlocale(LC_ALL, "");
 
 	// Open input file
-	FILE *file = fopen("output20.txt", "r");
+	FILE *inputFile = fopen("output20.txt", "r");
 
 	int frequencies[ALPHABET_SIZE] = {0};
 
 	wint_t c;
 
 	// Increment symbol frequencies
-	while ((c = fgetwc(file)) != WEOF)
+	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		frequencies[(int)c - ALPHABET_OFFSET] += 1;
 	}
@@ -57,7 +53,6 @@ int main(void)
 	for(int i = 0; i < ALPHABET_SIZE; i++) {
 		node* nextNode = newNode(i + ALPHABET_OFFSET, frequencies[i]);
 		treeNodes[i] = nextNode;
-		// wprintf(L"%i -> %lc -> %d\n", i, treeNodes[i]->symbol, treeNodes[i]->freq);
 	}
 	
 	int nodesLeft = ALPHABET_SIZE;
@@ -80,7 +75,6 @@ int main(void)
 			}
 
 		}
-		// printf("\nsmallest: %d. Second smallest: %d\n", firstIndex, secondIndex);
 		node* nodeParent = newNode(-1, smallest + secondSmallest);
 
 		nodeParent->right = treeNodes[firstIndex];
@@ -92,35 +86,27 @@ int main(void)
 	}
 
 	FILE* outputFile = fopen("encoded.txt", "w");
+
 	writeHuffmanTree(treeNodes[0], &outputFile);
 	fprintf(outputFile, "\n");
-	char buffer[200];
+
+	char buffer[200] = {0};
 	char lookupTable[200][200];
+
 	buildLookupTable(treeNodes[0], buffer, lookupTable);
 
-	fseek(file, 0, SEEK_SET);
-
+	// Reset file pointer
+	fseek(inputFile, 0, SEEK_SET);
 
 	// Increment symbol frequencies
-	while ((c = fgetwc(file)) != WEOF)
+	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		fprintf(outputFile, "%s", lookupTable[(int)c - ALPHABET_OFFSET]);
 	}
 
 	fclose(outputFile);
 
-
-	// printf("")
-
-	// pre order traversel and store results into array
-
-	// TO DO:
-	// decoder
-	// run this on ARM machine to ensure it works
-	// optimize
-
-
-	fclose(file);
+	fclose(inputFile);
 
 	return EXIT_SUCCESS;
 }
