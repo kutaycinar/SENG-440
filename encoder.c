@@ -7,8 +7,6 @@
 #include <arpa/inet.h>
 #include <time.h>
 
-int counter = 0;
-
 typedef struct opcode {
 	char bit;
 	struct opcode *next;
@@ -21,7 +19,7 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
 		
 		/* first print data of node */
-    	printf("%C -> (%s) ", node->symbol, lookupTable[node->symbol-ALPHABET_OFFSET]);
+    	// printf("%C -> (%s) ", node->symbol, lookupTable[node->symbol-ALPHABET_OFFSET]);
 	}
 
     /* then recur on left sutree */
@@ -35,14 +33,18 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
     buildLookupTable(node->right, strcat(buff3, "1"), lookupTable);
 }
 
+void writeBitOut(char* bit_buffer, FILE* output_file) {
+	fwrite(bit_buffer, sizeof(*bit_buffer), 1, output_file);
+}
+
 // Returns the length of the optcode added
-int addNextChar(char* bit_buffer, int* bit_position, FILE* outputFile, char* symbol_opcode) {
+int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* symbol_opcode) {
 	int counter = 0;
 	while(*symbol_opcode != '\0') {
 		
 		counter++;
 
-		printf("%d", *symbol_opcode - '0');
+		// printf("%d", *symbol_opcode - '0');
 
 		*bit_buffer |= (*symbol_opcode) - '0';
 		
@@ -52,7 +54,7 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* outputFile, char* sym
 		if(*bit_position == sizeof(*bit_buffer) * 8) {
 
 			// Write to file
-			fwrite(bit_buffer, sizeof(*bit_buffer), 1, outputFile);
+			writeBitOut(bit_buffer, output_file);
 
 			// Reset bit buffer and position
 			*bit_buffer = 0x00;
@@ -73,7 +75,7 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* outputFile, char* sym
 
 int main(void)
 {
-    clock_t start = clock();
+    clock_t program_start = clock();
 
 	setlocale(LC_ALL, "");
 
@@ -92,13 +94,13 @@ int main(void)
 
 	node* treeNodes = buildHuffmanTree(frequencies);
 
-	FILE* outputFile = fopen("encoded.dat", "wb");
+	FILE* output_file = fopen("encoded.dat", "wb");
 	int counter = 0;
-	fseek(outputFile, sizeof(counter), SEEK_SET);
+	fseek(output_file, sizeof(counter), SEEK_SET);
 
 	for (int i = 0; i < ALPHABET_SIZE; i++)
 	{
-		fwrite(&frequencies[i], sizeof(short), 1, outputFile);
+		fwrite(&frequencies[i], sizeof(short), 1, output_file);
 	}
 
 	char buffer[200] = {0};
@@ -113,30 +115,30 @@ int main(void)
 	char* symbol_opcode;
 	char bit_buffer = 0x00000000;
 	int bit_position = 0;
-	printf("\n");
+	// printf("\n");
 	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		symbol_opcode = lookupTable[(int)c - ALPHABET_OFFSET];
-		counter += addNextChar(&bit_buffer, &bit_position, outputFile, symbol_opcode);;
+		counter += addNextChar(&bit_buffer, &bit_position, output_file, symbol_opcode);;
 	}
 	if(bit_position != 0) {
 		// TODO: FIX PADDDING HERE
 		bit_buffer = bit_buffer << (sizeof(bit_buffer)*8 - bit_position - 1);
-		fwrite(&bit_buffer, sizeof(bit_buffer), 1, outputFile);
+		fwrite(&bit_buffer, sizeof(bit_buffer), 1, output_file);
 	}
 
-	fseek(outputFile, 0, SEEK_SET);
-	printf("\n%d\n", counter);
+	fseek(output_file, 0, SEEK_SET);
+	// printf("\n%d\n", counter);
 	
-	fwrite(&counter, sizeof(counter), 1, outputFile);
+	fwrite(&counter, sizeof(counter), 1, output_file);
 
-
-	fclose(outputFile);
+	// Close file IO
+	fclose(output_file);
 	fclose(inputFile);
 	
-    clock_t stop = clock();
-    double elapsed = (double)(stop - start) * 1000.0 / CLOCKS_PER_SEC;
-    printf("Time elapsed in ms: %f", elapsed);
-
+    clock_t program_stop = clock();
+	
+    printf("Time elapsed %.0f ms.\n", ((double)(program_stop - program_start) * 1000.0 / CLOCKS_PER_SEC));
+	
 	return EXIT_SUCCESS;
 }

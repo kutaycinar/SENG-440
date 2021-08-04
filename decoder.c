@@ -18,7 +18,7 @@ int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remain
 
 	// Only look at furthest right bit
 	int nextBit = (*bit_buffer & 0b10000000) >> 7;
-	printf("%d", nextBit);
+	// printf("%d", nextBit);
 	(*bit_position)--;
 	(*remaining_bits)--;
 	*bit_buffer = *bit_buffer << 1;
@@ -29,7 +29,7 @@ int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remain
 
 int main(void) {
 	
-    clock_t start = clock();
+    clock_t program_start = clock();
 	
 	setlocale(LC_ALL, "");
 
@@ -80,8 +80,10 @@ int main(void) {
 	fclose(inputFile);
 	fclose(outputFile);
 
-    clock_t stop = clock();
-    double elapsed = (double)(stop - start) * 1000.0 / CLOCKS_PER_SEC;
-    printf("Time elapsed in ms: %f", elapsed);
-	 
+
+    clock_t program_stop = clock();
+
+    printf("Time elapsed %.0f ms.\n", ((double)(program_stop - program_start) * 1000.0 / CLOCKS_PER_SEC));
+
+	return EXIT_SUCCESS;
 }

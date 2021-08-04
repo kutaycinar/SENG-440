@@ -6,7 +6,7 @@
 
 #define MAX_INT 		2147483647
 #define ALPHABET_SIZE	200
-#define FILENAME "output10k.txt"
+#define FILENAME "output10m.txt"
 #define ALPHABET_OFFSET 931
 
 typedef struct node {

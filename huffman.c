@@ -25,8 +25,8 @@ void printCurrentLevel(struct node* root, int level)
     if (root == NULL)
         return;
 
-    if (level == 1)
-        printf("%d ", root->symbol);
+    // if (level == 1)
+        // printf("%d ", root->symbol);
 
     else if (level > 1)
     {
