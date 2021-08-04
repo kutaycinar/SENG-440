@@ -5,6 +5,7 @@
 #include <string.h>
 #include "huffman.h"
 #include <arpa/inet.h>
+#include <time.h>
 
 int counter = 0;
 
@@ -72,6 +73,8 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* outputFile, char* sym
 
 int main(void)
 {
+    clock_t start = clock();
+
 	setlocale(LC_ALL, "");
 
 	// Open input file
@@ -130,6 +133,10 @@ int main(void)
 
 	fclose(outputFile);
 	fclose(inputFile);
+	
+    clock_t stop = clock();
+    double elapsed = (double)(stop - start) * 1000.0 / CLOCKS_PER_SEC;
+    printf("Time elapsed in ms: %f", elapsed);
 
 	return EXIT_SUCCESS;
 }
