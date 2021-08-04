@@ -5,60 +5,64 @@
 #include <string.h>
 #include "huffman.h"
 
-void buildTree(int asciiCodes[], struct node* node, int size, int currIndex) {
-
-	// Condition for a leaf node
-	if(currIndex * 2 + 2 >= size || asciiCodes[currIndex * 2 + 2] == 0) {
-		node->symbol = asciiCodes[currIndex];
-		return;
+int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remaining_bits) {
+	if (*bit_position == 0)
+	{
+		if(fread(bit_buffer, sizeof(*bit_buffer), 1, inputFile) < 1) {
+			return -1;
+		}
+		*bit_position = sizeof(*bit_buffer)*8;
 	}
+
+	// Only look at furthest right bit
+	int nextBit = (*bit_buffer & 0b10000000) >> 7;
+	printf("%d", nextBit);
+	(*bit_position)--;
+	(*remaining_bits)--;
+	*bit_buffer = *bit_buffer << 1;
+
+	return nextBit;
 	
-	node->left = newNode(-1, 0);
-	buildTree(asciiCodes, node->left, size, currIndex * 2 + 1);
-	node->right = newNode(-1, 0);
-	buildTree(asciiCodes, node->right, size, currIndex * 2 + 2);
-
-
 }
 
 int main(void) {
 	
 	setlocale(LC_ALL, "");
 
-	FILE* inputFile = fopen("encoded.txt", "r");
-    
-	// Read first line
-	// Build huffman tree
-    char huffmanInfo[1000];
-	int treeAsciiCodes[500] = {};
+	FILE* inputFile = fopen("encoded.dat", "rb");
 
-	// TODO add tree size to file
-	fgets (huffmanInfo, 1000, inputFile);
-    char* tokenized = strtok(huffmanInfo, " ");
-	int size = 0;
-    while(tokenized != NULL) {
-		treeAsciiCodes[size] = atoi(tokenized);
-		tokenized = strtok(NULL, " ");
-		size++;
+	int remaining_bits;
+	fread(&remaining_bits, sizeof(remaining_bits), 1, inputFile);
+	
+	// tree reading
+	short frequencies[ALPHABET_SIZE] = {0};
+	short text_buffer;
+
+	// Parse frequencies from file
+	for (int i = 0; i < ALPHABET_SIZE; i++)
+	{
+		fread(&text_buffer, sizeof(short), 1, inputFile);
+		frequencies[i] = text_buffer;
 	}
-	for(int i = 0; i < size; i++){
-		printf("%d ", treeAsciiCodes[i]);
-	}
-	// buildTree(treeAsciiCodes, huffmanTree, size - 1, 0);
-	node* huffmanTree = buildHuffmanTree(treeAsciiCodes);
+
+	// Build Huffman Tree
+	node* huffmanTree = buildHuffmanTree(frequencies);
 	printHuffmanTree(huffmanTree);
 
-	// Read second line
+	// Read second line.
 	// Traverse huffman tree until leaf node is found
 	FILE* outputFile = fopen("decoded.txt", "w");
-	char nextBit = fgetc(inputFile);
+	char bit_buffer = 0;
+	int bit_position = 0;
+	int nextBit;
 	struct node* adventurer = huffmanTree;
 	do {
-		printf("%c", nextBit);
-		if(nextBit == '0') {
+		
+		nextBit = getNextBit(&bit_buffer, &bit_position, inputFile, &remaining_bits);
+		if(nextBit == 0) {
 			adventurer = adventurer->left;
 		}
-		if(nextBit == '1') {
+		if(nextBit == 1) {
 			adventurer = adventurer->right;
 		}
 		if(adventurer->symbol != -1)
@@ -66,9 +70,8 @@ int main(void) {
 			fwprintf(outputFile, L"%C", adventurer->symbol);
 			adventurer = huffmanTree;
 		}
-		nextBit = fgetc(inputFile);
 		
-	} while(nextBit != EOF);
+	} while(nextBit != -1 && remaining_bits > 0);
 	
 	fclose(inputFile);
 	fclose(outputFile);

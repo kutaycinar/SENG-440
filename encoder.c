@@ -6,6 +6,8 @@
 #include "huffman.h"
 #include <arpa/inet.h>
 
+int counter = 0;
+
 typedef struct opcode {
 	char bit;
 	struct opcode *next;
@@ -32,9 +34,14 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
     buildLookupTable(node->right, strcat(buff3, "1"), lookupTable);
 }
 
-void addNextChar(int* bit_buffer, int* bit_position, FILE* outputFile, char* symbol_opcode) {
+// Returns the length of the optcode added
+int addNextChar(char* bit_buffer, int* bit_position, FILE* outputFile, char* symbol_opcode) {
+	int counter = 0;
 	while(*symbol_opcode != '\0') {
-		// printf("Symbol Code: %d Bit Position:%d\n", *symbol_opcode - '0', *bit_position);
+		
+		counter++;
+
+		printf("%d", *symbol_opcode - '0');
 
 		*bit_buffer |= (*symbol_opcode) - '0';
 		
@@ -59,7 +66,7 @@ void addNextChar(int* bit_buffer, int* bit_position, FILE* outputFile, char* sym
 		symbol_opcode++;
 	}
 
-
+	return counter;
 
 }
 
@@ -83,14 +90,13 @@ int main(void)
 	node* treeNodes = buildHuffmanTree(frequencies);
 
 	FILE* outputFile = fopen("encoded.dat", "wb");
+	int counter = 0;
+	fseek(outputFile, sizeof(counter), SEEK_SET);
 
 	for (int i = 0; i < ALPHABET_SIZE; i++)
 	{
 		fwrite(&frequencies[i], sizeof(short), 1, outputFile);
 	}
-
-	char line_seperator = '\n';
-	fwrite(&line_seperator, sizeof(char), 1, outputFile);
 
 	char buffer[200] = {0};
 	char lookupTable[200][200];
@@ -102,21 +108,27 @@ int main(void)
 
 	// Increment symbol frequencies
 	char* symbol_opcode;
-	int bit_buffer = 0x00000000;
+	char bit_buffer = 0x00000000;
 	int bit_position = 0;
 	printf("\n");
 	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		symbol_opcode = lookupTable[(int)c - ALPHABET_OFFSET];
-		addNextChar(&bit_buffer, &bit_position, outputFile, symbol_opcode);
+		counter += addNextChar(&bit_buffer, &bit_position, outputFile, symbol_opcode);;
 	}
 	if(bit_position != 0) {
-		bit_buffer = bit_buffer << (sizeof(bit_buffer) - bit_position);
+		// TODO: FIX PADDDING HERE
+		bit_buffer = bit_buffer << (sizeof(bit_buffer)*8 - bit_position - 1);
 		fwrite(&bit_buffer, sizeof(bit_buffer), 1, outputFile);
 	}
 
-	fclose(outputFile);
+	fseek(outputFile, 0, SEEK_SET);
+	printf("\n%d\n", counter);
+	
+	fwrite(&counter, sizeof(counter), 1, outputFile);
 
+
+	fclose(outputFile);
 	fclose(inputFile);
 
 	return EXIT_SUCCESS;
