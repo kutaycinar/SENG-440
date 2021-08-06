@@ -17,17 +17,14 @@ void buildLookupTable(struct node* node, char* buffer, char lookupTable[][200]) 
 		
 	if (node->symbol != -1) {
 		strcpy(lookupTable[node->symbol-ALPHABET_OFFSET], buffer);
-		
-		/* first print data of node */
-    	// printf("%C -> (%s) ", node->symbol, lookupTable[node->symbol-ALPHABET_OFFSET]);
 	}
 
-    /* then recur on left sutree */
+	// Left sub tree
 	char buff2[200];
 	strcpy(buff2, buffer);
     buildLookupTable(node->left, strcat(buff2, "0"), lookupTable);
 	
-    /* now recur on right subtree */
+	// Right sub tree
 	char buff3[200];
 	strcpy(buff3, buffer);
     buildLookupTable(node->right, strcat(buff3, "1"), lookupTable);
@@ -44,7 +41,8 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* sy
 		
 		code_length++;
 
-		*bit_buffer |= (*symbol_opcode) - '0'; // isolates the last bit
+		// Isolate the last bit
+		*bit_buffer |= (*symbol_opcode) - '0'; 
 		
 		(*bit_position)++;
 
@@ -81,7 +79,6 @@ int main(void)
 	FILE *inputFile = fopen(FILENAME, "r");
 
 	short frequencies[ALPHABET_SIZE] = {0};
-
 	wint_t c;
 
 	// Increment symbol frequencies
@@ -113,20 +110,18 @@ int main(void)
 	char* symbol_opcode;
 	char bit_buffer = 0x00000000;
 	int bit_position = 0;
-	// printf("\n");
+	
 	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		symbol_opcode = lookupTable[(int)c - ALPHABET_OFFSET];
 		code_length += addNextChar(&bit_buffer, &bit_position, output_file, symbol_opcode);;
 	}
 	if(bit_position != 0) {
-		// TODO: FIX PADDDING HERE
 		bit_buffer = bit_buffer << (sizeof(bit_buffer)*8 - bit_position - 1);
 		fwrite(&bit_buffer, sizeof(bit_buffer), 1, output_file);
 	}
 
 	fseek(output_file, 0, SEEK_SET);
-	// printf("\n%d\n", code_length);
 	
 	fwrite(&code_length, sizeof(code_length), 1, output_file);
 

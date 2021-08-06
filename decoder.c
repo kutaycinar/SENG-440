@@ -18,7 +18,6 @@ int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remain
 
 	// Only look at furthest right bit
 	int nextBit = (*bit_buffer & 0b10000000) >> 7;
-	// printf("%d", nextBit);
 	(*bit_position)--;
 	(*remaining_bits)--;
 	*bit_buffer = *bit_buffer << 1;
@@ -38,7 +37,7 @@ int main(void) {
 	int remaining_bits;
 	fread(&remaining_bits, sizeof(remaining_bits), 1, inputFile);
 	
-	// tree reading
+	// Tree reading
 	short frequencies[ALPHABET_SIZE] = {0};
 	short text_buffer;
 
@@ -53,7 +52,6 @@ int main(void) {
 	node* huffmanTree = buildHuffmanTree(frequencies);
 	printHuffmanTree(huffmanTree);
 
-	// Read second line.
 	// Traverse huffman tree until leaf node is found
 	FILE* outputFile = fopen("decoded.txt", "w");
 	char bit_buffer = 0;
@@ -79,7 +77,6 @@ int main(void) {
 	
 	fclose(inputFile);
 	fclose(outputFile);
-
 
     clock_t program_stop = clock();
 
