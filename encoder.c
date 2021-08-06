@@ -39,14 +39,12 @@ void writeBitOut(char* bit_buffer, FILE* output_file) {
 
 // Returns the length of the optcode added
 int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* symbol_opcode) {
-	int counter = 0;
+	int code_length = 0;
 	while(*symbol_opcode != '\0') {
 		
-		counter++;
+		code_length++;
 
-		// printf("%d", *symbol_opcode - '0');
-
-		*bit_buffer |= (*symbol_opcode) - '0';
+		*bit_buffer |= (*symbol_opcode) - '0'; // isolates the last bit
 		
 		(*bit_position)++;
 
@@ -69,7 +67,7 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* sy
 		symbol_opcode++;
 	}
 
-	return counter;
+	return code_length;
 
 }
 
@@ -95,8 +93,8 @@ int main(void)
 	node* treeNodes = buildHuffmanTree(frequencies);
 
 	FILE* output_file = fopen("encoded.dat", "wb");
-	int counter = 0;
-	fseek(output_file, sizeof(counter), SEEK_SET);
+	int code_length = 0;
+	fseek(output_file, sizeof(code_length), SEEK_SET);
 
 	for (int i = 0; i < ALPHABET_SIZE; i++)
 	{
@@ -119,7 +117,7 @@ int main(void)
 	while ((c = fgetwc(inputFile)) != WEOF)
 	{
 		symbol_opcode = lookupTable[(int)c - ALPHABET_OFFSET];
-		counter += addNextChar(&bit_buffer, &bit_position, output_file, symbol_opcode);;
+		code_length += addNextChar(&bit_buffer, &bit_position, output_file, symbol_opcode);;
 	}
 	if(bit_position != 0) {
 		// TODO: FIX PADDDING HERE
@@ -128,9 +126,9 @@ int main(void)
 	}
 
 	fseek(output_file, 0, SEEK_SET);
-	// printf("\n%d\n", counter);
+	// printf("\n%d\n", code_length);
 	
-	fwrite(&counter, sizeof(counter), 1, output_file);
+	fwrite(&code_length, sizeof(code_length), 1, output_file);
 
 	// Close file IO
 	fclose(output_file);
@@ -139,6 +137,6 @@ int main(void)
     clock_t program_stop = clock();
 	
     printf("Time elapsed %.0f ms.\n", ((double)(program_stop - program_start) * 1000.0 / CLOCKS_PER_SEC));
-	
+
 	return EXIT_SUCCESS;
 }
