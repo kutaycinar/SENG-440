@@ -7,10 +7,10 @@
 #include <time.h>
 
 
-int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remaining_bits) {
+int getNextBit(char* bit_buffer, int* bit_position, FILE* input_file, int* remaining_bits) {
 	if (*bit_position == 0)
 	{
-		if(fread(bit_buffer, sizeof(*bit_buffer), 1, inputFile) < 1) {
+		if(fread(bit_buffer, sizeof(*bit_buffer), 1, input_file) < 1) {
 			return -1;
 		}
 		*bit_position = sizeof(*bit_buffer)*8;
@@ -26,16 +26,13 @@ int getNextBit(char* bit_buffer, int* bit_position, FILE* inputFile, int* remain
 	
 }
 
-int main(void) {
-	
-    clock_t program_start = clock();
-	
-	setlocale(LC_ALL, "");
-
-	FILE* inputFile = fopen("encoded.dat", "rb");
-
+int readEncoderLength(FILE* input_file) {
 	int remaining_bits;
-	fread(&remaining_bits, sizeof(remaining_bits), 1, inputFile);
+	fread(&remaining_bits, sizeof(remaining_bits), 1, input_file);	
+	return remaining_bits;
+}
+	
+struct node* readTreeFromFile(FILE* input_file) {
 	
 	// Tree reading
 	short frequencies[ALPHABET_SIZE] = {0};
@@ -44,39 +41,60 @@ int main(void) {
 	// Parse frequencies from file
 	for (int i = 0; i < ALPHABET_SIZE; i++)
 	{
-		fread(&text_buffer, sizeof(short), 1, inputFile);
+		fread(&text_buffer, sizeof(short), 1, input_file);
 		frequencies[i] = text_buffer;
 	}
-
+	
 	// Build Huffman Tree
 	node* huffmanTree = buildHuffmanTree(frequencies);
-	printHuffmanTree(huffmanTree);
 
-	// Traverse huffman tree until leaf node is found
-	FILE* outputFile = fopen("decoded.txt", "w");
+	return huffmanTree;
+	
+}
+
+struct node* decodeNextBit(node* adventurer, char* bit_buffer, int* bit_position, int* next_bit, int* remaining_bits, FILE* input_file, FILE* output_file) {
+	*next_bit = getNextBit(bit_buffer, bit_position, input_file, remaining_bits);
+	if(*next_bit == 0) {
+		adventurer = adventurer->left;
+	}
+	if(*next_bit == 1) {
+		adventurer = adventurer->right;
+	}
+	return adventurer;
+}
+
+void decodeText(node* huffmanTree, FILE* input_file, FILE* output_file, int remaining_bits) {
 	char bit_buffer = 0;
 	int bit_position = 0;
-	int nextBit;
+	int next_bit;
 	struct node* adventurer = huffmanTree;
 	do {
-		
-		nextBit = getNextBit(&bit_buffer, &bit_position, inputFile, &remaining_bits);
-		if(nextBit == 0) {
-			adventurer = adventurer->left;
-		}
-		if(nextBit == 1) {
-			adventurer = adventurer->right;
-		}
-		if(adventurer->symbol != -1)
-		{
-			fwprintf(outputFile, L"%C", adventurer->symbol);
+		adventurer = decodeNextBit(adventurer, &bit_buffer, &bit_position, &next_bit, &remaining_bits, input_file, output_file);
+		if(adventurer->symbol != -1) {
+			fwprintf(output_file, L"%C", adventurer->symbol);
 			adventurer = huffmanTree;
 		}
-		
-	} while(nextBit != -1 && remaining_bits > 0);
+	} while(next_bit != -1 && remaining_bits > 0);
+}
+
+int main(void) {
 	
-	fclose(inputFile);
-	fclose(outputFile);
+    clock_t program_start = clock();
+	
+	setlocale(LC_ALL, "");
+
+	FILE* input_file = fopen("encoded.dat", "rb");
+
+	// Get the size of the encoding
+	int remaining_bits = readEncoderLength(input_file);
+	node* huffmanTree = readTreeFromFile(input_file);
+
+	// Traverse huffman tree until leaf node is found
+	FILE* output_file = fopen("decoded.txt", "w");
+	decodeText(huffmanTree, input_file, output_file, remaining_bits);
+	
+	fclose(input_file);
+	fclose(output_file);
 
     clock_t program_stop = clock();
 
