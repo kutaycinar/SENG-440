@@ -58,3 +58,6 @@ encoder
 decoder
 encoded.dat
 decoded.txt
+
+# Mac
+.DS_Store
