@@ -17,7 +17,7 @@ int getNextBit(char* restrict bit_buffer, int* restrict bit_position, FILE* inpu
 	}
 
 	// Only look at furthest right bit
-	int nextBit = (*bit_buffer & 0b10000000) >> 7;
+	int nextBit = (*bit_buffer & 0b10000000);
 	(*bit_position)--;
 	(*remaining_bits)--;
 	*bit_buffer = *bit_buffer << 1;
@@ -52,24 +52,18 @@ struct node* readTreeFromFile(FILE* input_file) {
 	
 }
 
-struct node* decodeNextBit(node* adventurer, char* bit_buffer, int* bit_position, int* next_bit, int* remaining_bits, FILE* input_file, FILE* output_file) {
-	*next_bit = getNextBit(bit_buffer, bit_position, input_file, remaining_bits);
-	if(*next_bit == 0) {
-		adventurer = adventurer->left;
-	}
-	else if(*next_bit == 1) {
-		adventurer = adventurer->right;
-	}
-	return adventurer;
-}
-
 void decodeText(node* huffmanTree, FILE* input_file, FILE* output_file, int remaining_bits) {
 	char bit_buffer = 0;
 	int bit_position = 0;
 	int next_bit;
 	struct node* adventurer = huffmanTree;
 	do {
-		adventurer = decodeNextBit(adventurer, &bit_buffer, &bit_position, &next_bit, &remaining_bits, input_file, output_file);
+		next_bit = getNextBit(&bit_buffer, &bit_position, input_file, &remaining_bits);
+		if(next_bit == 0) {
+			adventurer = adventurer->left;
+		} else {
+			adventurer = adventurer->right;
+		}
 		if(adventurer->symbol != -1) {
 			fwprintf(output_file, L"%C", adventurer->symbol);
 			adventurer = huffmanTree;
