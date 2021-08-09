@@ -7,7 +7,7 @@
 #include <time.h>
 
 
-int getNextBit(char* bit_buffer, int* bit_position, FILE* input_file, int* remaining_bits) {
+int getNextBit(char* restrict bit_buffer, int* restrict bit_position, FILE* input_file, int* restrict remaining_bits) {
 	if (*bit_position == 0)
 	{
 		if(fread(bit_buffer, sizeof(*bit_buffer), 1, input_file) < 1) {
@@ -39,10 +39,10 @@ struct node* readTreeFromFile(FILE* input_file) {
 	short text_buffer;
 
 	// Parse frequencies from file
-	for (int i = 0; i < ALPHABET_SIZE; i++)
+	for (int i = ALPHABET_SIZE; i != 0; i--)
 	{
 		fread(&text_buffer, sizeof(short), 1, input_file);
-		frequencies[i] = text_buffer;
+		frequencies[ALPHABET_SIZE - i] = text_buffer;
 	}
 	
 	// Build Huffman Tree
@@ -57,7 +57,7 @@ struct node* decodeNextBit(node* adventurer, char* bit_buffer, int* bit_position
 	if(*next_bit == 0) {
 		adventurer = adventurer->left;
 	}
-	if(*next_bit == 1) {
+	else if(*next_bit == 1) {
 		adventurer = adventurer->right;
 	}
 	return adventurer;
@@ -74,7 +74,7 @@ void decodeText(node* huffmanTree, FILE* input_file, FILE* output_file, int rema
 			fwprintf(output_file, L"%C", adventurer->symbol);
 			adventurer = huffmanTree;
 		}
-	} while(next_bit != -1 && remaining_bits > 0);
+	} while(next_bit != -1 && !(remaining_bits == 0));
 }
 
 int main(void) {

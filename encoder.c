@@ -37,8 +37,8 @@ void writeBitOut(char* bit_buffer, FILE* output_file) {
 // Returns the length of the optcode added
 int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* symbol_opcode) {
 	int code_length = 0;
+	int bufferSize = sizeof(*bit_buffer) * 8;
 	while(*symbol_opcode != '\0') {
-		
 		code_length++;
 
 		// Isolate the last bit
@@ -47,7 +47,7 @@ int addNextChar(char* bit_buffer, int* bit_position, FILE* output_file, char* sy
 		(*bit_position)++;
 
 		// Check if bit buffer is full
-		if(*bit_position == sizeof(*bit_buffer) * 8) {
+		if(*bit_position == bufferSize) {
 
 			// Write to file
 			writeBitOut(bit_buffer, output_file);
@@ -92,10 +92,10 @@ int main(void)
 	FILE* output_file = fopen("encoded.dat", "wb");
 	int code_length = 0;
 	fseek(output_file, sizeof(code_length), SEEK_SET);
-
-	for (int i = 0; i < ALPHABET_SIZE; i++)
+	register int i;
+	for (i = ALPHABET_SIZE; i != 0; i--)
 	{
-		fwrite(&frequencies[i], sizeof(short), 1, output_file);
+		fwrite(&frequencies[ALPHABET_SIZE - i], sizeof(short), 1, output_file);
 	}
 
 	char buffer[200] = {0};
