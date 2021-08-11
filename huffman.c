@@ -43,24 +43,20 @@ void printHuffmanTree(struct node* root)
     for (i=1; i<=h; i++)
         printCurrentLevel(root, i);
 } 
- 
-/* Compute the "height" of a tree -- the number of
-    nodes along the longest path from the root node
-    down to the farthest leaf node.*/
+
 int height(struct node* node)
 {
-    if (node==NULL)
+    if (node==NULL){
         return 0;
-    else
-    {
-        /* compute the height of each subtree */
+    }
+    else {
         int lheight = height(node->left);
         int rheight = height(node->right);
  
-        /* use the larger one */
         if (lheight > rheight)
             return(lheight+1);
-        else return(rheight+1);
+        
+	return(rheight+1);
     }
 }
 
