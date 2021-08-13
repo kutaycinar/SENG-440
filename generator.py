@@ -9,7 +9,7 @@ symbols = range(931,1131) #1131
 probabilities = [10, 9, 8, 7, 6] + [60/195] * 195
 
 
-ascii_codes = random.choices(symbols, weights=probabilities, k=sys.argv[1])
+ascii_codes = random.choices(symbols, weights=probabilities, k=int(sys.argv[1]))
 ascii_symbols = [chr(x) for x in ascii_codes]
 
 # Print the table of symbol to code mappings
